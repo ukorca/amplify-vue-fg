@@ -27,6 +27,8 @@
 </template>
 
 <script setup lang="ts">
+import type { Schema } from '../../amplify/data/resource'
+import { generateClient } from 'aws-amplify/data'
 import { ref, onMounted } from 'vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
@@ -40,6 +42,7 @@ const loading = ref(true);
 const items = ref<Tournament[]>([]);
 const tourId = ref<number | null>(null);
 const alertMessage = ref("");
+const client = generateClient<Schema>()
 
 async function getTours() {
   try {
@@ -67,16 +70,16 @@ async function getTours() {
 async function handleSubmit() {
   if (tourId.value) {
     alertMessage.value = `You selected tournament ID: ${tourId.value}`;
-    await createGolfers(tourId.value);
+    await client.models.Admin.create({
+      // Date: tournamentDate.toString(),
+      TournamentID: tourId.toString()
+    })
   } else {
     alertMessage.value = "Please select a tournament.";
   }
 }
 
-async function createGolfers(tournamentId: number) {
-  console.log("Creating golfers for tournament ID:", tournamentId);
-  // Call your API or logic to create golfers based on the selected tournament ID
-}
+
 
 onMounted(getTours);
 </script>

@@ -12,6 +12,16 @@ const schema = a.schema({
       content: a.string(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
+
+      
+  Admin: a
+  .model({
+    ID: a.id(), // Automatically generates a unique ID for each entry
+    Date: a.datetime(), // Define Date as a string to store a datetime format (e.g., "YYYY-MM-DDTHH:mm:ssZ")
+    TournamentID: a.string(), // Define TournamentID as an integer field
+  })
+  .authorization((allow) => [allow.owner()]), // Adjust authorization based on your requirements
+
 });
 
 export type Schema = ClientSchema<typeof schema>;
