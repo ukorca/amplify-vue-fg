@@ -2,11 +2,15 @@
   <div class="admin-container">
     <h2>Admin Panel</h2>
     <h3>Select a Tournament</h3>
-    
+    <div><router-link to="/">Go to Home Page</router-link></div>
+    <div>
+      <label for="tournamentDate">Select Tournament cut off date and time:</label>
+      <VueDatePicker v-model="tournamentDate" :format="'yyyy-mm-dd HH:mm'" :enableTime="true"/>
+    </div>
     <!-- Dropdown for tournaments -->
     <select v-model="tourId" :disabled="loading">
       <option value="" disabled>Select a Tournament</option>
-      <option v-for="item in items" :key="item.value" :value="item.value">
+      <option v-for="item in items" :key="item.value" :enable-time-picker="true" >
         {{ item.label }}
       </option>
     </select>
@@ -18,70 +22,62 @@
     <p v-if="alertMessage">{{ alertMessage }}</p>
     
     <!-- Submit button to perform an action with the selected tournament -->
-    <button @click="handleSubmit" :disabled="tourId === 0">Submit</button>
+    <button @click="handleSubmit" :disabled="tourId === null">Submit</button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { createGolfer as createGolferMutation } from '../graphql/mutations.js'; // Import your mutation if needed
-import { API } from 'aws-amplify'; // Ensure you have AWS Amplify set up if you're using it
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
+const tournamentDate = ref(new Date());
+interface Tournament {
+  label: string;
+  value: number;
+}
 
 const loading = ref(true);
-const items = ref([]);
-const tourId = ref(0);
+const items = ref<Tournament[]>([]);
+const tourId = ref<number | null>(null);
 const alertMessage = ref("");
 
-// Fetch tournaments from the API
 async function getTours() {
   try {
     const response = await fetch(
       "https://api.sportsdata.io/golf/v2/json/Tournaments?key=161ad371b51b46f38d06a248ac302e26"
     );
 
-    // Check if the response is okay
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const res = await response.json();
-    console.log("Fetched tournaments");
-
-    // Mapping response to items
     items.value = res.map(({ Name, TournamentID, StartDate }) => ({
       label: `${StartDate.slice(0, 10)} ${Name}`,
       value: TournamentID,
     }));
-
-    console.log(items.value); // Log the items to see if they are correctly populated
   } catch (error) {
     console.error("Error fetching tournaments:", error);
-    alertMessage.value = "Failed to load tournaments.";
+    alertMessage.value = "Failed to load tournaments. Please try again later.";
   } finally {
     loading.value = false; // Stop loading regardless of success or error
   }
 }
 
-// Handle submission of selected tournament
 async function handleSubmit() {
   if (tourId.value) {
     alertMessage.value = `You selected tournament ID: ${tourId.value}`;
-    
-    // Optional: Call a function to handle creating golfers
     await createGolfers(tourId.value);
   } else {
     alertMessage.value = "Please select a tournament.";
   }
 }
 
-// Function to create golfers using your mutation
-async function createGolfers(tournamentId) {
-  // Example of creating golfers; adapt as needed
+async function createGolfers(tournamentId: number) {
   console.log("Creating golfers for tournament ID:", tournamentId);
   // Call your API or logic to create golfers based on the selected tournament ID
 }
 
-// Fetch tournaments on component mount
 onMounted(getTours);
 </script>
 
