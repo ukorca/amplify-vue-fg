@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import router from './router'; // Ensure you're importing the router
-import { Authenticator } from "aws-amplify/ui-vue";
+import { Authenticator } from "@aws-amplify/ui-vue";
 import "@aws-amplify/ui-vue/styles.css";
+import outputs from '../amplify_outputs.json';
+import { Amplify } from 'aws-amplify';
+Amplify.configure(outputs);
 </script>
 
 <template>
