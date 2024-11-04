@@ -10,10 +10,10 @@ Amplify.configure(outputs);
 <template>
   <main>
     <authenticator>
-      <template v-slot="{ signOut }">
+      <!-- <template v-slot="{ signOut }"> -->
         <router-view /> <!-- This will render the matched component based on the current route -->
-        <button @click="signOut">Sign Out</button>
-      </template>
+        <!-- <button @click="signOut">Sign Out</button>
+      </template> -->
     </authenticator>
   </main>
 </template>
